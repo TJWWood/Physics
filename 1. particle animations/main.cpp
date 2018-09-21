@@ -257,23 +257,37 @@ int main()
 		/*
 		**	ANIMATIONS
 		*/
-		acc *=1.1;
-		particle1.translate(glm::vec3(0.0f, -1.0f * deltaTime * acc, 0.0f));
+		//acc *=1.1f;
+		//particle1.translate(glm::vec3(0.0f, -1.0f * deltaTime * acc, 0.0f));
 
 		// 1 - make particle fall at constant speed using the translate method
-
+		//particle1.translate(glm::vec3(0.0f, -1.0f * deltaTime, 0.0f));
 
 		// 2 - same as above using the setPos method
-		
+		//particle1.setPos(1, 1.0f - (currentFrame - 1.0f));
 
 		// 3 - make particle oscillate above the ground plance
-		
+		//particle1.setPos(1, 1.0 + sin(currentFrame));
 
 		// 4 - particle animation from initial velocity and acceleration
-		
+		glm::vec3 a = (glm::vec3(0.0f, -9.8f, 0.0f));
+		glm::vec3 u = (glm::vec3(3.0f, 6.0f, 0.0f));
+		glm::vec3 startPos(glm::vec3(0.0f, 6.0f, 0.0f));
+		float curF = 0;
+
+		//particle1.setPos(startPos + ((u * currentFrame) + (0.5*(a*currentFrame*currentFrame))));
 
 		// 5 - add collision with plane
-
+		if (particle1.getTranslate()[3][1] > plane.getTranslate()[3][1])
+		{
+			particle1.setPos((u * currentFrame) + (0.5*(a*currentFrame*currentFrame)));
+		}
+		else
+		{
+			firstFrame = 0;
+			particle1.setPos((u * currentFrame) + (0.5*(a*currentFrame*currentFrame)));
+	
+		}
 
 		// 6 - Same as above but for a collection of particles
 		
@@ -283,7 +297,7 @@ int main()
 		*/
 
 		// Clear the colorbuffer
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// draw groud plane
