@@ -47,7 +47,7 @@ int main()
 	// create particle
 	Mesh particle1 = Mesh::Mesh(Mesh::QUAD);
 	//scale it down (x.1), translate it up by 2.5 and rotate it by 90 degrees around the x axis
-	particle1.translate(glm::vec3(0.0f, 10.0f, 0.0f));
+	particle1.translate(glm::vec3(0.0f, 2.5f, 0.0f));
 	particle1.scale(glm::vec3(.1f, .1f, .1f));
 	particle1.rotate((GLfloat) M_PI_2, glm::vec3(1.0f, 0.0f, 0.0f));
 	particle1.setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_blue.frag"));
@@ -84,25 +84,6 @@ int main()
 		**	SIMULATION
 		*/
 		
-		//particle1.translate(glm::vec3(0.0f, v, 0.0f));
-
-		float m = 2.0f;
-		float g = -9.8f;
-		float fg = m * g;
-
-
-
-		particle1.translate(glm::vec3(0.0f, v, 0.0f));
-		//if (particle1.getPos()[1] >= plane.getPos()[1])
-		//{
-		//	particle1.translate(glm::vec3(0.0f, v * deltaTime, 0.0f));
-		//}
-		//else
-		//{
-		//	v *= -1.0f;
-			//particle1.setPos(glm::vec3(particle1.getPos()[0], plane.getPos()[1], particle1.getPos()[2]));
-			//particle1.translate(glm::vec3(0.0f, v * deltaTime, 0.0f));
-		//}
 
 
 		/*
