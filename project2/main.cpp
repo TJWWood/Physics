@@ -87,9 +87,12 @@ int main()
 		float mass = 1.0f;
 		glm::vec3 g = glm::vec3(0.0f, -9.8f, 0.0f);
 		glm::vec3 Fg = g * mass;
-		glm::vec3 accel = Fg / mass;
+		glm::vec3 Fa = 0.5 * 1.225 * (length(v) * length(v)) * 1.05 * (particle1.getScale()[0][0] * particle1.getScale()[1][1]) * (-normalize(v));
+		glm::vec3 F = Fg + Fa;
+		glm::vec3 accel = F / mass;
+		
 
-		v = v + deltaTime * accel;
+		v = v + (deltaTime * accel);
 		//if (particle1.getPos()[1] >= plane.getPos()[1])
 		//{
 		//	particle1.translate(v * deltaTime);
@@ -108,7 +111,7 @@ int main()
 			if (particle1.getPos()[i] > dim[i])
 			{
 				v[i] *= -1.0f;
-				
+
 			}
 			else if (particle1.getPos()[i] < -dim[i])
 			{
@@ -143,4 +146,3 @@ int main()
 
 	return EXIT_SUCCESS;
 }
-
