@@ -62,7 +62,7 @@ int main()
 
 	// time
 	GLfloat firstFrame = (GLfloat)glfwGetTime();
-	glm::vec3 v = glm::vec3(1.5f, 2.5f, 0.0f);
+	glm::vec3 v = glm::vec3(1.5f, 2.5f, 2.0f);
 
 	double t = 0.0;
 	const double dt = 0.01;
