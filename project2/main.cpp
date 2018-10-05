@@ -64,65 +64,66 @@ int main()
 	GLfloat firstFrame = (GLfloat)glfwGetTime();
 	glm::vec3 v = glm::vec3(1.5f, 2.5f, 0.0f);
 
+	double t = 0.0;
+	const double dt = 0.01;
+
+	double currentTime = glfwGetTime();
+	double accumulator = 0.0;
+
 	// Game loop
 	while (!glfwWindowShouldClose(app.getWindow()))
 	{
-		// Set frame time
-		GLfloat currentFrame = (GLfloat)glfwGetTime() - firstFrame;
-		// the animation can be sped up or slowed down by multiplying currentFrame by a factor.
-		currentFrame *= 1.5f;
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
+		double newTime = glfwGetTime();
+		double frameTime = newTime - currentTime;
+		currentTime = newTime;
 
-		/*
-		**	INTERACTION
-		*/
-		// Manage interaction
-		app.doMovement(deltaTime);
+		accumulator += frameTime;
 
-
-		/*
-		**	SIMULATION
-		*/
-		float mass = 1.0f;
-		glm::vec3 g = glm::vec3(0.0f, -9.8f, 0.0f);
-		glm::vec3 Fg = g * mass;
-		glm::vec3 Fa = 0.5 * 1.225 * (length(v) * length(v)) * 1.05 * (particle1.getScale()[0][0] * particle1.getScale()[1][1]) * (-normalize(v));
-		glm::vec3 F = Fg + Fa;
-		glm::vec3 accel = F / mass;
-		
-
-		v = v + (deltaTime * accel);
-		//if (particle1.getPos()[1] >= plane.getPos()[1])
-		//{
-		//	particle1.translate(v * deltaTime);
-		//}
-		//else
-		//{
-		//	v *= -1.1f;
-		//	particle1.setPos(glm::vec3(particle1.getPos()[0], plane.getPos()[1], particle1.getPos()[2]));
-		//}
-
-		//dimensions
-		glm::vec3 dim = glm::vec3(2.5f, 2.5f, 2.5);
-
-		for (int i = 0; i < 3; i++)
+		while (accumulator >= dt)
 		{
-			if (particle1.getPos()[i] > dim[i])
-			{
-				v[i] *= -1.0f;
+			/*
+			**	INTERACTION
+			*/
+			// Manage interaction
+			app.doMovement(dt);
 
-			}
-			else if (particle1.getPos()[i] < -dim[i])
-			{
-				v[i] *= -1.0f;
-			}
-			else
-			{
-				particle1.translate(v * deltaTime);
 
-				//particle1.setPos(glm::vec3(particle1.getPos()[0], particle1.getPos()[1], particle1.getPos()[2]));
+			/*
+			**	SIMULATION
+			*/
+			float mass = 1.0f;
+			glm::vec3 g = glm::vec3(0.0f, -9.8f, 0.0f);
+			glm::vec3 Fg = g * mass;
+			glm::vec3 Fa = 0.5 * 1.225 * (length(v) * length(v)) * 1.05 * (particle1.getScale()[0][0] * particle1.getScale()[1][1]) * (-normalize(v));
+			glm::vec3 F = Fg + Fa;
+			glm::vec3 accel = F / mass;
+
+			v = v + (dt * accel);
+
+			//dimensions
+			glm::vec3 dim = glm::vec3(5.0f, 5.0f, 5.0);
+			//corner
+			glm::vec3 corner = glm::vec3(0.0f, 0.0f, 0.0f);
+
+			for (int i = 0; i < 3; i++)
+			{
+				if (particle1.getPos()[i] > (corner[i] + dim[i]))
+				{
+					v[i] *= -1.0f;
+
+				}
+				else if (particle1.getPos()[i] < (-corner[i] + -dim[i]))
+				{
+					v[i] *= -1.0f;
+				}
+				else
+				{
+					particle1.translate(v * dt);
+
+				}
 			}
+			accumulator -= dt;
+			t += dt;
 		}
 
 		/*
