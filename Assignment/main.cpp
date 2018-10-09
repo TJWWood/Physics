@@ -134,7 +134,8 @@ int main()
 			//cylinder dimensions
 			glm::vec3 cDim = glm::vec3(1.0f, 1.0f, 1.0f);
 			//cone corner
-			glm::vec3 cCorner = glm::vec3(1.0f, 0.0f, 0.1f);
+			glm::vec3 cCorner = glm::vec3(-10.0f, 0.0f, 0.0f);
+			glm::vec3 wind = glm::vec3(sin(10), sin(3.0), 0.0f);
 
 			for (int j = 0; j < 3; j++)
 			{
@@ -148,7 +149,7 @@ int main()
 				}
 				else if (particle1.getPos()[j] < (-cCorner[j] + -cDim[j]))
 				{
-					particle1.getVel()[j] *= -1.2f;
+					particle1.getVel()[j] += -wind[j];
 				}
 				else
 				{
@@ -165,7 +166,7 @@ int main()
 				}
 				else if (particle2.getPos()[j] < (-cCorner[j] + -cDim[j]))
 				{
-					particle2.getVel()[j] *= -1.2f;
+					particle2.getVel()[j] += -wind[j];
 				}
 				else
 				{
