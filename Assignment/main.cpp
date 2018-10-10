@@ -50,7 +50,7 @@ int main()
 	Particle particle1;
 	particle1.setMesh(Mesh::Mesh(Mesh::QUAD));
 	//scale it down (x.1), translate it up by 2.5 and rotate it by 90 degrees around the x axis
-	particle1.translate(glm::vec3(0.0f, 2.0f, 0.0f));
+	particle1.translate(glm::vec3(4.0f, 2.0f, 0.0f));
 	particle1.scale(glm::vec3(.1f, .1f, .1f));
 	particle1.rotate((GLfloat)M_PI_2, glm::vec3(1.0f, 0.0f, 0.0f));
 	particle1.getMesh().setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_blue.frag"));
@@ -58,7 +58,7 @@ int main()
 	Particle particle2;
 	particle2.setMesh(Mesh::Mesh(Mesh::QUAD));
 	//scale it down (x.1), translate it up by 2.5 and rotate it by 90 degrees around the x axis
-	particle2.translate(glm::vec3(3.0f, 2.0f, 0.0f));
+	particle2.translate(glm::vec3(8.0f, 2.0f, 0.0f));
 	particle2.scale(glm::vec3(.1f, .1f, .1f));
 	particle2.rotate((GLfloat)M_PI_2, glm::vec3(1.0f, 0.0f, 0.0f));
 	particle2.getMesh().setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_blue.frag"));
@@ -66,7 +66,7 @@ int main()
 	Particle particle3;
 	particle3.setMesh(Mesh::Mesh(Mesh::QUAD));
 	//scale it down (x.1), translate it up by 2.5 and rotate it by 90 degrees around the x axis
-	particle3.translate(glm::vec3(-3.0f, 2.0f, 0.0f));
+	particle3.translate(glm::vec3(2.0, 2.0f, 0.0f));
 	particle3.scale(glm::vec3(.1f, .1f, .1f));
 	particle3.rotate((GLfloat)M_PI_2, glm::vec3(1.0f, 0.0f, 0.0f));
 	particle3.getMesh().setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_blue.frag"));
@@ -127,29 +127,23 @@ int main()
 			particle2.setVel(particle2.getVel() + (dt * particle2.getAcc()));
 
 			//dimensions
-			glm::vec3 dim = glm::vec3(5.0f, 5.0f, 5.0f);
+			glm::vec3 dim = glm::vec3(12.0f, 12.0f, 12.0f);
 			//corner
-			glm::vec3 corner = glm::vec3(-4.0f, 0.0f, 0.0f);
+			glm::vec3 corner = glm::vec3(0.0f, 0.0f, 0.0f);
 
-			//cylinder dimensions
-			glm::vec3 cDim = glm::vec3(1.0f, 1.0f, 1.0f);
-			//cone corner
-			glm::vec3 cCorner = glm::vec3(-10.0f, 0.0f, 0.0f);
-			glm::vec3 wind = glm::vec3(sin(10), sin(3.0), 0.0f);
+			glm::vec3 leftUpWind = glm::vec3(1.6f, -1.1f, 0.0f);
+
+			glm::vec3 rightUpWind = glm::vec3(1.6f, -1.1f, 0.0f);
 
 			for (int j = 0; j < 3; j++)
 			{
 				if (particle1.getPos()[j] > corner[j] + dim[j])
 				{
-					particle1.getVel()[j] *= -1.2f;
+					particle1.getVel()[j] *= -0.999f;
 				}
 				else if (particle1.getPos()[j] < (-corner[j] + -dim[j]))
 				{
-					particle1.getVel()[j] *= -1.2f;
-				}
-				else if (particle1.getPos()[j] < (-cCorner[j] + -cDim[j]))
-				{
-					particle1.getVel()[j] += -wind[j];
+					particle1.getVel()[j] *= -0.999f;
 				}
 				else
 				{
@@ -164,15 +158,27 @@ int main()
 				{
 					particle2.getVel()[j] *= -0.999f;
 				}
-				else if (particle2.getPos()[j] < (-cCorner[j] + -cDim[j]))
-				{
-					particle2.getVel()[j] += -wind[j];
-				}
 				else
 				{
 					particle2.translate(particle2.getVel() * dt);
 				}
 			}
+
+			if (particle1.getPos()[0] > 3.6f && particle1.getPos()[0] < 6.0f && (particle1.getPos()[1] < 4.0f && particle1.getPos()[1] >= -6.0f))
+			{
+				particle1.getVel()[0] = leftUpWind[0];
+			}
+			else if (particle1.getPos()[0] > 6.0f && particle1.getPos()[0] < 8.4f && (particle1.getPos()[1] < 4.0f && particle1.getPos()[1] >= -6.0f))
+			{
+				particle1.getVel()[0] = rightUpWind[0];
+			}
+			//basically check if each particle is between two set areas e.g left side and middle, and right side and middle
+			//and if they are then apply the relevant force to them e.g reverse y and push on x in correct way
+			//- seems to work, just need to make box sit where i want
+			//TODO fix invisible box positioning and change relevant numbers for where wind comes from
+
+
+			//p2 8.4 & 6
 
 			accumulator -= dt;
 			t += dt;
