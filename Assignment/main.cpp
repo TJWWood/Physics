@@ -50,7 +50,7 @@ int main()
 	Particle particle1;
 	particle1.setMesh(Mesh::Mesh(Mesh::QUAD));
 	//scale it down (x.1), translate it up by 2.5 and rotate it by 90 degrees around the x axis
-	particle1.translate(glm::vec3(4.0f, 2.0f, 0.0f));
+	particle1.translate(glm::vec3(-1.0f, 2.0f, 0.2f));
 	particle1.scale(glm::vec3(.1f, .1f, .1f));
 	particle1.rotate((GLfloat)M_PI_2, glm::vec3(1.0f, 0.0f, 0.0f));
 	particle1.getMesh().setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_blue.frag"));
@@ -58,7 +58,7 @@ int main()
 	Particle particle2;
 	particle2.setMesh(Mesh::Mesh(Mesh::QUAD));
 	//scale it down (x.1), translate it up by 2.5 and rotate it by 90 degrees around the x axis
-	particle2.translate(glm::vec3(8.0f, 2.0f, 0.0f));
+	particle2.translate(glm::vec3(1.0f, 2.0f, 0.0f));
 	particle2.scale(glm::vec3(.1f, .1f, .1f));
 	particle2.rotate((GLfloat)M_PI_2, glm::vec3(1.0f, 0.0f, 0.0f));
 	particle2.getMesh().setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_blue.frag"));
@@ -66,7 +66,7 @@ int main()
 	Particle particle3;
 	particle3.setMesh(Mesh::Mesh(Mesh::QUAD));
 	//scale it down (x.1), translate it up by 2.5 and rotate it by 90 degrees around the x axis
-	particle3.translate(glm::vec3(2.0, 2.0f, 0.0f));
+	particle3.translate(glm::vec3(-3.0, 2.0f, 0.0f));
 	particle3.scale(glm::vec3(.1f, .1f, .1f));
 	particle3.rotate((GLfloat)M_PI_2, glm::vec3(1.0f, 0.0f, 0.0f));
 	particle3.getMesh().setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_blue.frag"));
@@ -89,7 +89,10 @@ int main()
 
 	double currentTime = glfwGetTime();
 	double accumulator = 0.0;
-
+	//dimensions
+	glm::vec3 dim = glm::vec3(7.0f, 7.0f, 7.0f);
+	//corner
+	glm::vec3 corner = glm::vec3(0.0f, 0.0f, 0.0f);
 	// Game loop
 	while (!glfwWindowShouldClose(app.getWindow()))
 	{
@@ -114,7 +117,7 @@ int main()
 			particle1.setMass(1.0);
 			glm::vec3 Fg = g * particle1.getMass();
 			particle1.setAcc(Fg / particle1.getMass());
-			
+
 
 			glm::vec3 g2 = glm::vec3(0.0f, -9.8f, 0.0f);
 			particle2.setMass(1.0);
@@ -126,18 +129,15 @@ int main()
 			//v2 simplicit euler
 			particle2.setVel(particle2.getVel() + (dt * particle2.getAcc()));
 
-			//dimensions
-			glm::vec3 dim = glm::vec3(12.0f, 12.0f, 12.0f);
-			//corner
-			glm::vec3 corner = glm::vec3(0.0f, 0.0f, 0.0f);
 
-			glm::vec3 leftUpWind = glm::vec3(1.6f, -1.1f, 0.0f);
 
-			glm::vec3 rightUpWind = glm::vec3(1.6f, -1.1f, 0.0f);
+			//glm::vec3 leftUpWind = glm::vec3(1.6f, -1.1f, 0.0f);
+
+			//glm::vec3 rightUpWind = glm::vec3(1.6f, -1.1f, 0.0f);
 
 			for (int j = 0; j < 3; j++)
 			{
-				if (particle1.getPos()[j] > corner[j] + dim[j])
+				if (particle1.getPos()[j] > (corner[j] + dim[j]))
 				{
 					particle1.getVel()[j] *= -0.999f;
 				}
@@ -150,7 +150,7 @@ int main()
 					particle1.translate(particle1.getVel() * dt);
 				}
 
-				if (particle2.getPos()[j] > corner[j] + dim[j])
+				if (particle2.getPos()[j] > (corner[j] + dim[j]))
 				{
 					particle2.getVel()[j] *= -0.999f;
 				}
@@ -164,21 +164,25 @@ int main()
 				}
 			}
 
-			if (particle1.getPos()[0] > 3.6f && particle1.getPos()[0] < 6.0f && (particle1.getPos()[1] < 4.0f && particle1.getPos()[1] >= -6.0f))
+			if (particle1.getPos()[0] > -1.6f && particle1.getPos()[0] <= 1.6f && (particle1.getPos()[1] < -1.0f && particle1.getPos()[1] >= -5.0f) && (particle1.getPos()[2] >= -3.0f && particle1.getPos()[2] <= 3.0f))
 			{
-				particle1.getVel()[0] = leftUpWind[0];
+				glm::vec3 wind = glm::vec3(particle1.getPos()[0], 6.0f, sin(particle1.getPos()[2]) + 2.0f);
+				particle1.getVel() = wind;
 			}
-			else if (particle1.getPos()[0] > 6.0f && particle1.getPos()[0] < 8.4f && (particle1.getPos()[1] < 4.0f && particle1.getPos()[1] >= -6.0f))
+			else
 			{
-				particle1.getVel()[0] = rightUpWind[0];
+				particle1.translate(particle1.getVel() * dt);
 			}
-			//basically check if each particle is between two set areas e.g left side and middle, and right side and middle
-			//and if they are then apply the relevant force to them e.g reverse y and push on x in correct way
-			//- seems to work, just need to make box sit where i want
-			//TODO fix invisible box positioning and change relevant numbers for where wind comes from
 
-
-			//p2 8.4 & 6
+			if (particle2.getPos()[0] > -1.6f && particle2.getPos()[0] <= 1.6f && (particle2.getPos()[1] < -1.0f && particle2.getPos()[1] >= -4.0f) && particle2.getPos()[2] >= -3.0f && particle2.getPos()[2] <= 3.0f)
+			{
+				glm::vec3 wind = glm::vec3(particle2.getPos()[0], 6.0f, sin(particle2.getPos()[2]) + 2.0f);
+				particle2.getVel() = wind;
+			}
+			else
+			{
+				particle2.translate(particle2.getVel() * dt);
+			}
 
 			accumulator -= dt;
 			t += dt;
@@ -197,8 +201,8 @@ int main()
 		app.draw(particle3.getMesh());
 
 		// draw demo objects
-		app.draw(cube);
-		app.draw(sphere);
+		//app.draw(cube);
+		//app.draw(sphere);
 
 		app.display();
 	}
