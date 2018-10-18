@@ -53,6 +53,17 @@ public:
 	void setPos(const glm::vec3 & vect) { m_pos = vect; m_mesh.setPos(vect); }
 	void setPos(int i, float p) { m_pos[i] = p; m_mesh.setPos(i, p); } // set the ith coordinate of the position vector
 
+	glm::vec3 Body::applyForces(glm::vec3 x, glm::vec3 v, float t, float dt) {
+		glm::vec3 fAccumulator = glm::vec3(0.0f);
+
+		for (auto &f : m_forces)
+		{
+			fAccumulator += f->apply(getMass(), x, v);
+		}
+		return fAccumulator / getMass();
+	}
+
+
 	// physical properties
 	void setCor(float cor) { m_cor = cor; }
 	void setMass(float mass) { m_mass = mass; }
@@ -64,6 +75,5 @@ public:
 	void translate(const glm::vec3 &vect);
 	void rotate(float angle, const glm::vec3 &vect);
 	void scale(const glm::vec3 &vect);
-	glm::vec3 applyForces(glm::vec3 x, glm::vec3 v, float t, float dt);
 	void addForce(Force *f) { m_forces.push_back(f); }
 };

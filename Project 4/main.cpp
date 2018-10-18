@@ -113,10 +113,14 @@ int main()
 			/*
 			**	SIMULATION
 			*/
-			glm::vec3 g = glm::vec3(0.0f, -9.8f, 0.0f);
-			particle1.setMass(1.0);
-			glm::vec3 Fg = g * particle1.getMass();
-			particle1.setAcc(Fg / particle1.getMass());
+			Gravity g = Gravity(glm::vec3(0.0f, -9.8f, 0.0f));
+			//glm::vec3 Fg = g * particle1.getMass();
+	
+			//particle1.setMass(1.0);
+			particle1.addForce(&g);
+			
+			
+			particle1.setAcc(particle1.applyForces(particle1.getPos(), particle1.getVel(), t, dt));
 
 
 			glm::vec3 g2 = glm::vec3(0.0f, -9.8f, 0.0f);

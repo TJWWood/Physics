@@ -32,7 +32,10 @@ public:
 	glm::vec3 apply(float mass, const glm::vec3 & pos, const glm::vec3 & vel);
 
 private:
-	glm::vec3 m_gravity = glm::vec3(0.0f, -9.8f, 0.0f);};/*
+	glm::vec3 m_gravity = glm::vec3(0.0f, -9.8f, 0.0f);
+};
+
+/*
 ** DRAG CLASS
 */
 class Drag : public Force {
@@ -42,4 +45,26 @@ public:
 	glm::vec3 apply(float mass, const glm::vec3 & pos, const glm::vec3 & vel);
 
 private:
-};
+
+};
+
+class Hooke : public Force {
+public:
+	Hooke() {}
+	Hooke(Body * b1, Body* b2, float ks, float kd, float rest) {
+		m_ks = ks; m_kd = kd; m_rest = rest; m_b1 = b1; m_b2 = b2;
+	}
+
+	//glm::vec3 getHooke() const { return m_ks; }
+	//void setHooke(glm::vec3 ks) { m_ks = ks; }
+
+	glm::vec3 apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel);
+
+private:
+	float m_ks;
+	float m_kd;
+	float m_rest;
+
+	Body* m_b1;
+	Body* m_b2;
+};
