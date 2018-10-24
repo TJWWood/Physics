@@ -55,8 +55,20 @@ public:
 		m_ks = ks; m_kd = kd; m_rest = rest; m_b1 = b1; m_b2 = b2;
 	}
 
-	//glm::vec3 getHooke() const { return m_ks; }
-	//void setHooke(glm::vec3 ks) { m_ks = ks; }
+	float getKs() { return m_ks; }
+	void setKs(float ks) { m_ks = ks; }
+
+	float getKd() { return m_kd; }
+	void setKd(float kd) { m_kd = kd; }
+
+	float getRest() { return m_rest; }
+	void setRest(float rest) { m_rest = rest; }
+
+	Body* getB1() { return m_b1; }
+	void setB1(Body* b1) { m_b1 = b1; }
+
+	Body* getB2() { return m_b2; }
+	void setB2(Body* b2) { m_b2 = b2; }
 
 	glm::vec3 apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel);
 

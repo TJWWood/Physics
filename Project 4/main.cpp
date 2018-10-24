@@ -63,14 +63,6 @@ int main()
 	particle2.rotate((GLfloat)M_PI_2, glm::vec3(1.0f, 0.0f, 0.0f));
 	particle2.getMesh().setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_blue.frag"));
 
-	Particle particle3;
-	particle3.setMesh(Mesh::Mesh(Mesh::QUAD));
-	//scale it down (x.1), translate it up by 2.5 and rotate it by 90 degrees around the x axis
-	particle3.translate(glm::vec3(-3.0, 2.0f, 0.0f));
-	particle3.scale(glm::vec3(.1f, .1f, .1f));
-	particle3.rotate((GLfloat)M_PI_2, glm::vec3(1.0f, 0.0f, 0.0f));
-	particle3.getMesh().setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_blue.frag"));
-
 	// create demo objects (a cube and a sphere)
 	Mesh sphere = Mesh::Mesh("resources/models/sphere.obj");
 	sphere.translate(glm::vec3(-1.0f, 1.0f, 0.0f));
@@ -89,10 +81,22 @@ int main()
 
 	double currentTime = glfwGetTime();
 	double accumulator = 0.0;
-	//dimensions
-	glm::vec3 dim = glm::vec3(7.0f, 7.0f, 7.0f);
-	//corner
-	glm::vec3 corner = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	Gravity g = Gravity(glm::vec3(0.0f, -9.8f, 0.0f));
+
+	particle2.setMass(1.0f);
+	particle2.addForce(&g);
+
+	Hooke* hooke = new Hooke();
+	hooke->setKs(1.0f);
+	hooke->setKd(1.0f);
+	hooke->setRest(1.0f);
+	hooke->setB1(&particle1);
+	hooke->setB2(&particle2);
+
+	//particle1.addForce(hooke);
+	particle2.addForce(hooke);
+
 	// Game loop
 	while (!glfwWindowShouldClose(app.getWindow()))
 	{
@@ -113,80 +117,13 @@ int main()
 			/*
 			**	SIMULATION
 			*/
-			Gravity g = Gravity(glm::vec3(0.0f, -9.8f, 0.0f));
-			//glm::vec3 Fg = g * particle1.getMass();
-	
-			//particle1.setMass(1.0);
-			particle1.addForce(&g);
+
+			particle2.setAcc(particle2.applyForces(particle2.getPos(), particle2.getVel(), t, dt));
 			
-			
-			particle1.setAcc(particle1.applyForces(particle1.getPos(), particle1.getVel(), t, dt));
-
-
-			glm::vec3 g2 = glm::vec3(0.0f, -9.8f, 0.0f);
-			particle2.setMass(1.0);
-			glm::vec3 Fg2 = g2 * particle2.getMass();
-			particle2.setAcc(Fg2 / particle2.getMass());
-
-			//v1 forward euler
-			particle1.setVel(particle1.getVel() + (dt * particle1.getAcc()));
-			//v2 simplicit euler
 			particle2.setVel(particle2.getVel() + (dt * particle2.getAcc()));
 
+			particle2.translate(particle2.getAcc() * dt);
 
-
-			//glm::vec3 leftUpWind = glm::vec3(1.6f, -1.1f, 0.0f);
-
-			//glm::vec3 rightUpWind = glm::vec3(1.6f, -1.1f, 0.0f);
-
-			for (int j = 0; j < 3; j++)
-			{
-				if (particle1.getPos()[j] > (corner[j] + dim[j]))
-				{
-					particle1.getVel()[j] *= -0.999f;
-				}
-				else if (particle1.getPos()[j] < (-corner[j] + -dim[j]))
-				{
-					particle1.getVel()[j] *= -0.999f;
-				}
-				else
-				{
-					particle1.translate(particle1.getVel() * dt);
-				}
-
-				if (particle2.getPos()[j] > (corner[j] + dim[j]))
-				{
-					particle2.getVel()[j] *= -0.999f;
-				}
-				else if (particle2.getPos()[j] < (-corner[j] + -dim[j]))
-				{
-					particle2.getVel()[j] *= -0.999f;
-				}
-				else
-				{
-					particle2.translate(particle2.getVel() * dt);
-				}
-			}
-
-			if (particle1.getPos()[0] > -1.6f && particle1.getPos()[0] <= 1.6f && (particle1.getPos()[1] < -1.0f && particle1.getPos()[1] >= -5.0f) && (particle1.getPos()[2] >= -3.0f && particle1.getPos()[2] <= 3.0f))
-			{
-				glm::vec3 wind = glm::vec3(particle1.getPos()[0], 6.0f, sin(particle1.getPos()[2]) + 2.0f);
-				particle1.getVel() = wind;
-			}
-			else
-			{
-				particle1.translate(particle1.getVel() * dt);
-			}
-
-			if (particle2.getPos()[0] > -1.6f && particle2.getPos()[0] <= 1.6f && (particle2.getPos()[1] < -1.0f && particle2.getPos()[1] >= -4.0f) && particle2.getPos()[2] >= -3.0f && particle2.getPos()[2] <= 3.0f)
-			{
-				glm::vec3 wind = glm::vec3(particle2.getPos()[0], 6.0f, sin(particle2.getPos()[2]) + 2.0f);
-				particle2.getVel() = wind;
-			}
-			else
-			{
-				particle2.translate(particle2.getVel() * dt);
-			}
 
 			accumulator -= dt;
 			t += dt;
@@ -202,7 +139,6 @@ int main()
 		// draw particles
 		app.draw(particle1.getMesh());
 		app.draw(particle2.getMesh());
-		app.draw(particle3.getMesh());
 
 		// draw demo objects
 		//app.draw(cube);
