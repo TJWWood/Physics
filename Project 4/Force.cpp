@@ -27,14 +27,14 @@ glm::vec3 Hooke::apply(float mass, const glm::vec3 &pos, const glm::vec3 &vel)
 	Body* b1 = getB1();
 	Body* b2 = getB2();
 
-	glm::vec3 l = normalize(b2->getPos() - b1->getPos());
-	glm::vec3 e = (b2->getPos() - b1->getPos()) / l;
-	glm::vec3 v1 = e * b1->getVel();
-	glm::vec3 v2 = e * b2->getVel();
+	float l = glm::length(b2->getPos() - b1->getPos());
+	glm::vec3 e = normalize(b2->getPos() - b1->getPos());
+	float v1 = dot(b1->getVel(),e);
+	float v2 = dot(b2->getVel(),e);
 
-	glm::vec3 fs = -ks * (rest - l);
-	glm::vec3 fd = -kd * (v1 - v2);
-	glm::vec3 hooke = fs - fd;
+	float fs = -ks * (rest - l);
+	float fd = kd * (v1 - v2);
+	float hooke = fs - fd;
 
 	return hooke * e;
 }

@@ -45,36 +45,8 @@ int main()
 	Shader lambert = Shader("resources/shaders/physics.vert", "resources/shaders/physics.frag");
 	plane.setShader(lambert);
 
-
-	// create particle
-	Particle particle1;
-	particle1.setMesh(Mesh::Mesh(Mesh::QUAD));
-	//scale it down (x.1), translate it up by 2.5 and rotate it by 90 degrees around the x axis
-	particle1.translate(glm::vec3(-1.0f, 2.0f, 0.2f));
-	particle1.scale(glm::vec3(.1f, .1f, .1f));
-	particle1.rotate((GLfloat)M_PI_2, glm::vec3(1.0f, 0.0f, 0.0f));
-	particle1.getMesh().setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_blue.frag"));
-
-	Particle particle2;
-	particle2.setMesh(Mesh::Mesh(Mesh::QUAD));
-	//scale it down (x.1), translate it up by 2.5 and rotate it by 90 degrees around the x axis
-	particle2.translate(glm::vec3(1.0f, 2.0f, 0.0f));
-	particle2.scale(glm::vec3(.1f, .1f, .1f));
-	particle2.rotate((GLfloat)M_PI_2, glm::vec3(1.0f, 0.0f, 0.0f));
-	particle2.getMesh().setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_blue.frag"));
-
-	// create demo objects (a cube and a sphere)
-	Mesh sphere = Mesh::Mesh("resources/models/sphere.obj");
-	sphere.translate(glm::vec3(-1.0f, 1.0f, 0.0f));
-	sphere.setShader(lambert);
-	Mesh cube = Mesh::Mesh("resources/models/cube.obj");
-	cube.translate(glm::vec3(1.0f, .5f, 0.0f));
-	cube.setShader(lambert);
-
 	// time
 	GLfloat firstFrame = (GLfloat)glfwGetTime();
-	particle1.setVel(glm::vec3(0.0f, 0.0f, 0.0f));
-	glm::vec3 v2 = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	double t = 0.0;
 	const double dt = 0.01;
@@ -83,19 +55,54 @@ int main()
 	double accumulator = 0.0;
 
 	Gravity g = Gravity(glm::vec3(0.0f, -9.8f, 0.0f));
+	Particle particle[10][10];
+	for (int i = 0; i < 10; i++)
+	{
+		for (int j = 0; j < 10; j++)
+		{
+			particle[i][j].setMesh(Mesh::Mesh(Mesh::QUAD));
+			//scale it down (x.1), translate it up by 2.5 and rotate it by 90 degrees around the x axis
+			particle[i][j].translate(glm::vec3(5 - i, 10.0f, 0.0f));
 
-	particle2.setMass(1.0f);
-	particle2.addForce(&g);
+			particle[i][j].scale(glm::vec3(.1f, .1f, .1f));
+			particle[i][j].rotate((GLfloat)M_PI_2, glm::vec3(1.0f, 0.0f, 0.0f));
+			particle[i][j].getMesh().setShader(Shader("resources/shaders/solid.vert", "resources/shaders/solid_blue.frag"));
+			particle[i][j].setVel(glm::vec3(0.0f, 0.0f, 0.0f));
+			particle[i][j].setMass(1.0f);
+			particle[i][j].addForce(&g);
+		}
+	}
 
-	Hooke* hooke = new Hooke();
-	hooke->setKs(1.0f);
-	hooke->setKd(1.0f);
-	hooke->setRest(1.0f);
-	hooke->setB1(&particle1);
-	hooke->setB2(&particle2);
+	for (int i = 0; i < 9; i++)
+	{
+		for (int j = 0; j < 10; j++)
+		{
+			Hooke* hooke = new Hooke();
+			hooke->setKs(15.0f);
+			hooke->setKd(8.0f);
+			hooke->setRest(0.5f);
+			hooke->setB1(&particle[i][j]);
+			hooke->setB2(&particle[i + 1][j + 1]);
 
-	//particle1.addForce(hooke);
-	particle2.addForce(hooke);
+			particle[i][j].addForce(hooke);
+		}
+
+	}
+
+	for (int i = 1; i < 10; i++)
+	{
+		for (int j = 1; j < 9; j++)
+		{
+			Hooke* hooke = new Hooke();
+			hooke->setKs(15.0f);
+			hooke->setKd(8.0f);
+			hooke->setRest(0.5f);
+			hooke->setB1(&particle[i][j]);
+			hooke->setB2(&particle[i - 1][j - 1]);
+
+			particle[i][j].addForce(hooke);
+		}
+	}
 
 	// Game loop
 	while (!glfwWindowShouldClose(app.getWindow()))
@@ -108,6 +115,7 @@ int main()
 
 		while (accumulator >= dt)
 		{
+
 			/*
 			**	INTERACTION
 			*/
@@ -117,12 +125,24 @@ int main()
 			/*
 			**	SIMULATION
 			*/
+			for (int i = 0; i < 9; i++) {
+				for (int j = 0; j < 9; j++)
+				{
+					if (particle[i][j].getPos().y <= plane.getPos().y)
+					{
+						particle[i][j].setVel(glm::vec3(0.0f, 0.0f, 0.0f));
+					}
+					else
+					{
+						particle[i][j].setAcc(particle[i][j].applyForces(particle[i][j].getPos(), particle[i][j].getVel(), t, dt));
 
-			particle2.setAcc(particle2.applyForces(particle2.getPos(), particle2.getVel(), t, dt));
-			
-			particle2.setVel(particle2.getVel() + (dt * particle2.getAcc()));
+						particle[i][j].setVel(particle[i][j].getVel() + (dt * particle[i][j].getAcc()));
 
-			particle2.translate(particle2.getAcc() * dt);
+						particle[i][j].translate(particle[i][j].getVel() * dt);
+					}
+				}
+			}
+
 
 
 			accumulator -= dt;
@@ -137,8 +157,15 @@ int main()
 		// draw groud plane
 		app.draw(plane);
 		// draw particles
-		app.draw(particle1.getMesh());
-		app.draw(particle2.getMesh());
+		for (int i = 0; i < 10; i++)
+		{
+			for (int j = 0; j < 10; j++)
+			{
+				app.draw(particle[i][j].getMesh());
+			}
+		}
+		//app.draw(particle1.getMesh());
+		//app.draw(particle2.getMesh());
 
 		// draw demo objects
 		//app.draw(cube);
